@@ -1,0 +1,15 @@
+.dashboard-card-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+}
+
+.dashboard-card {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+}

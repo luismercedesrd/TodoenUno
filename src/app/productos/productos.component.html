@@ -1,0 +1,156 @@
+<section class="productos-page container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Listado de Productos</h2>
+    <button class="btn btn-primary" (click)="openModal()">+ Nuevo Producto</button>
+  </div>
+
+  <div class="alert alert-info" *ngIf="isLoading">Cargando productos...</div>
+  <div class="alert alert-danger" *ngIf="!isLoading && errorMessage">{{ errorMessage }}</div>
+
+  <div class="table-responsive" *ngIf="!isLoading && !errorMessage">
+    <table class="table table-striped table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Name</th>
+          <th>Description</th>
+          <th>PriceAmount</th>
+          <th>SupplierId</th>
+          <th>Stock</th>
+          <th>Imagen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of products">
+          <td>{{ product.name }}</td>
+          <td>{{ product.description }}</td>
+          <td>{{ product.priceAmount | number: '1.2-2' }}</td>
+          <td>{{ product.supplierId }}</td>
+          <td>{{ product.stock }}</td>
+          <td>
+            <img
+              *ngIf="product.imagen"
+              [src]="productsImagesBaseUrl + '/' + product.imagen"
+              [alt]="product.name"
+              class="product-image"
+            />
+            <span *ngIf="!product.imagen" class="text-muted">Sin imagen</span>
+          </td>
+        </tr>
+        <tr *ngIf="products.length === 0">
+          <td colspan="6" class="text-center text-muted">No hay productos para mostrar.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Modal Nuevo Producto -->
+<div class="modal-backdrop-custom" *ngIf="showModal" (click)="closeModal()"></div>
+
+<div class="modal d-block" tabindex="-1" role="dialog" *ngIf="showModal">
+  <div class="modal-dialog modal-lg" role="document" (click)="$event.stopPropagation()">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Nuevo Producto</h5>
+        <button type="button" class="btn-close" (click)="closeModal()"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="alert alert-danger" *ngIf="saveError">{{ saveError }}</div>
+
+        <form [formGroup]="productForm" (ngSubmit)="saveProduct()">
+          <div class="row g-3">
+
+            <div class="col-md-6">
+              <label class="form-label">Nombre *</label>
+              <input type="text" class="form-control" formControlName="name"
+                [class.is-invalid]="isInvalid('name')" />
+              <div class="invalid-feedback">El nombre es obligatorio.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Precio *</label>
+              <input type="text" class="form-control" formControlName="price"
+                [class.is-invalid]="isInvalid('price')" placeholder="700" />
+              <div class="invalid-feedback">El precio es obligatorio.</div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Descripción *</label>
+              <textarea class="form-control" formControlName="description" rows="2"
+                [class.is-invalid]="isInvalid('description')"></textarea>
+              <div class="invalid-feedback">La descripción es obligatoria.</div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">SKU</label>
+              <input type="text" class="form-control" formControlName="sku" placeholder="5fsadf" />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Stock *</label>
+              <input type="number" class="form-control" formControlName="stock" min="0"
+                [class.is-invalid]="isInvalid('stock')" />
+              <div class="invalid-feedback">El stock debe ser 0 o mayor.</div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Imagen</label>
+              <div class="d-flex gap-3 align-items-start">
+                <div class="flex-grow-1">
+                  <input type="text" class="form-control" formControlName="imagen"
+                    placeholder="ej: zapatilla.jpg" />
+                  <div class="form-text">
+                    Copia el archivo a <code>public/images/productos/</code> y escribe el nombre aquí.
+                  </div>
+                </div>
+                <div class="image-preview-box">
+                  <img *ngIf="imagePreviewUrl" [src]="imagePreviewUrl" alt="Vista previa" class="image-preview" />
+                  <div *ngIf="!imagePreviewUrl" class="image-upload-placeholder" (click)="fileInput.click()" title="Vista previa">
+                    <span class="upload-icon">&#128247;</span>
+                    <small>Vista previa</small>
+                  </div>
+                  <input #fileInput type="file" accept="image/*" class="d-none"
+                    (change)="onFileSelected($event)" />
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Supplier *</label>
+              <select class="form-select" formControlName="supplierId"
+                [class.is-invalid]="isInvalid('supplierId')">
+                <option value="">-- Selecciona un proveedor --</option>
+                <option *ngFor="let s of suppliers" [value]="s.id">{{ s.name }}</option>
+              </select>
+              <div class="invalid-feedback">El proveedor es obligatorio.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Category *</label>
+              <select class="form-select" formControlName="categoryId"
+                [class.is-invalid]="isInvalid('categoryId')">
+                <option value="">-- Selecciona una categoría --</option>
+                <option *ngFor="let c of categories" [value]="c.id">{{ c.name }}</option>
+              </select>
+              <div class="invalid-feedback">La categoría es obligatoria.</div>
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="isSaving">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-primary" (click)="saveProduct()" [disabled]="isSaving">
+          <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-1"></span>
+          {{ isSaving ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

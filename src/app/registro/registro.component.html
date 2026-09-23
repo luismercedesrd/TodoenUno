@@ -1,0 +1,111 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Registro de Usuario</h4>
+        </div>
+        <div class="card-body">
+
+          <div *ngIf="registrado" class="alert alert-success" role="alert">
+            Usuario registrado exitosamente.
+          </div>
+
+          <div *ngIf="errorRegistro" class="alert alert-danger" role="alert">
+            {{ errorRegistro }}
+          </div>
+
+          <form #registroForm="ngForm" (ngSubmit)="onSubmit()" novalidate>
+
+            <!-- Nombre -->
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre</label>
+              <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                class="form-control"
+                [(ngModel)]="usuario.name"
+                required
+                minlength="3"
+                #nombre="ngModel"
+                placeholder="Ingresa tu nombre">
+              <div *ngIf="nombre.invalid && nombre.touched" class="text-danger small mt-1">
+                El nombre es obligatorio y debe tener al menos 3 caracteres.
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="form-control"
+                [(ngModel)]="usuario.email"
+                required
+                email
+                #email="ngModel"
+                placeholder="correo@ejemplo.com">
+              <div *ngIf="email.invalid && email.touched" class="text-danger small mt-1">
+                Ingresa un email válido.
+              </div>
+            </div>
+
+            <!-- Contraseña -->
+            <div class="mb-3">
+              <label for="contrasena" class="form-label">Contraseña</label>
+              <input
+                type="password"
+                id="contrasena"
+                name="contrasena"
+                class="form-control"
+                [(ngModel)]="usuario.password"
+                required
+                minlength="6"
+                #contrasena="ngModel"
+                placeholder="Mínimo 6 caracteres">
+              <div *ngIf="contrasena.invalid && contrasena.touched" class="text-danger small mt-1">
+                La contraseña es obligatoria y debe tener al menos 6 caracteres.
+              </div>
+            </div>
+
+            <!-- Rol -->
+            <div class="mb-4">
+              <label for="rol" class="form-label">Rol</label>
+              <select
+                id="rol"
+                name="rol"
+                class="form-select"
+                [(ngModel)]="usuario.roleId"
+                required
+                #rol="ngModel"
+                [disabled]="cargandoRoles">
+                <option value="" disabled>
+                  {{ cargandoRoles ? 'Cargando roles...' : 'Selecciona un rol' }}
+                </option>
+                <option *ngFor="let r of roles" [value]="r.id">
+                  {{ r.name }}
+                </option>
+              </select>
+              <div *ngIf="errorRoles" class="text-danger small mt-1">{{ errorRoles }}</div>
+              <div *ngIf="rol.invalid && rol.touched && !errorRoles" class="text-danger small mt-1">
+                Debes seleccionar un rol.
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-primary w-100"
+              [disabled]="registroForm.invalid || cargando">
+              <span *ngIf="cargando" class="spinner-border spinner-border-sm me-2" role="status"></span>
+              {{ cargando ? 'Registrando...' : 'Registrar' }}
+            </button>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
